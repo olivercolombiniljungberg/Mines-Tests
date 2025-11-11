@@ -91,6 +91,6 @@ class Map:
         a_obst = a_obsts / self.n_obstacles_walls_excluded if self.n_obstacles_walls_excluded else 0
         self.len_x_obst, self.len_y_obst = np.sqrt(a_obst), np.sqrt(a_obst)
 
-        
         self.all_agents = np.array([])
         self.all_obstacles = np.array([])
+        self.C_O_M = np.array([])

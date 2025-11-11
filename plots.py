@@ -5,18 +5,8 @@ from matplotlib.animation import FuncAnimation
 
 MAX_FRAMES = 200
 
-def compute_swarm_center(agents,t,group=-1):
-    group_centers = []
-    groups = [group] if group != -1 else np.unique([a.group for a in agents])
-    for group in groups:
-        group_agents = [a for a in agents if a.group == 0]
-        x_coords = [a.p[0][t] for a in group_agents]
-        y_coords = [a.p[1][t] for a in group_agents]
-        group_centers.append([np.mean(x_coords),np.mean(y_coords)])
-    return(group_centers)
-
 def plot_map(map, rectangle=None, t_idx=0):
-    agents, obstacles = map.all_agents, map.all_obstacles
+    agents, obstacles, center_of_mass = map.all_agents, map.all_obstacles, map.C_O_M
     if rectangle is None:
         x_min, y_min, x_max, y_max = map.x_min, map.y_min, map.x_max, map.y_max
     else:
@@ -45,9 +35,7 @@ def plot_map(map, rectangle=None, t_idx=0):
         )
         ax.add_patch(rect)
 
-    swarm_centers = compute_swarm_center(agents,t_idx)
-
-    for c in swarm_centers:
+    for c in center_of_mass[t_idx]:
         circle = patches.Circle(
                 (c[0], c[1]), 
                 radius=2*a.r, 
@@ -66,7 +54,7 @@ def plot_map(map, rectangle=None, t_idx=0):
     plt.show()
 
 def animate_map(map, frame_min=0, frame_max=-1, rectangle=None, interval=None, downscale=True):
-    agents, obstacles, interval = map.all_agents, map.all_obstacles, map.dt
+    agents, obstacles, center_of_mass, interval = map.all_agents, map.all_obstacles, map.C_O_M, map.dt
     if rectangle is None:
         x_min, y_min, x_max, y_max = map.x_min, map.y_min, map.x_max, map.y_max
     else:
@@ -105,9 +93,8 @@ def animate_map(map, frame_min=0, frame_max=-1, rectangle=None, interval=None, d
         )
         ax.add_patch(rect)
 
-    swarm_centers = compute_swarm_center(agents,frame_min)
     center_circles = []
-    for c in swarm_centers:
+    for c in center_of_mass[0]:
         circle = patches.Circle(
                 (c[0], c[1]), 
                 radius=2*a.r, 
@@ -119,7 +106,7 @@ def animate_map(map, frame_min=0, frame_max=-1, rectangle=None, interval=None, d
     def update(frame):
         for i, c in enumerate(agents_circles):
             c.center = (agents[i].p[0][frame*scaling], agents[i].p[1][frame*scaling])
-        swarm_centers = compute_swarm_center(agents,frame*scaling)
+        swarm_centers = center_of_mass[frame*scaling]
         for i, c in enumerate(center_circles):
             c.center = (swarm_centers[i][0], swarm_centers[i][1])
         return agents_circles + center_circles

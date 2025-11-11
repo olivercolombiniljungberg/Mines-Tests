@@ -3,12 +3,12 @@ import numpy as np
 from classes import Agent, Obstacle
 
 def init_map(map):
-    modify_map(map,a=False)
-    modify_map(map,a=True)
+    modify_map(map, a=False)
+    modify_map(map, a=True)
     generate_obstacles(map)
     generate_agents(map)
 
-def modify_map(map,a):
+def modify_map(map, a):
     p_rate = map.p_ag_rate if a else map.p_ob_rate
     name = "agents" if a else "obstacles"
     if p_rate > 1:
@@ -158,14 +158,18 @@ def generate_agents(map):
     #     print(i,iter,j_max,idx_j_max,d_closest_agents,id_closest_agents)
     print(iter,j_max,idx_j_max,d_closest_agents,id_closest_agents)
         
-    def reinitialize_pos(map):
-        for i in range(len(map.all_agents)):
-            x,y = map.init_positions_array
-            map.all_agents[i].p = np.array([[x],[y]])
-            map.all_agents[i].v = np.array([[0],[0]])
-            map.all_agents[i].a = np.array([[0],[0]])
-            map.all_agents[i].p_des = np.array([[],[]])
-            map.all_agents[i].v_des = np.array([[],[]])
+def reset_to_init_pos(map):
+    for i, a in enumerate(map.all_agents):
+        x,y = map.init_positions_array[i]
+        a.p = np.array([[x],[y]])
+        a.v = np.array([[0],[0]])
+        a.a = np.array([[0],[0]])
+        a.p_field = np.array([[],[]])
+        a.v_field = np.array([[],[]])
+        a.p_target = np.array([[],[]])
+        a.v_target = np.array([[],[]])
+        a.p_des = np.array([[],[]])
+        a.v_des = np.array([[],[]])
 
 def create_bigger_rectangle(obst,d_min):
     x_min = obst.x_min - d_min

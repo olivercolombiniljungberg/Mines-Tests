@@ -5,18 +5,17 @@ from target_points import target_point
 V_MAX       = 3.0
 R_REP       = 0.5
 R_ATT       = 1.0
-K_REP       = 6.0
+K_REP       = 8.0
 K_ATT       = 0.2
 K_TARGET    = 1.5
 
 def append_vel_pos(map, t=-1, v_max=V_MAX, r_rep=R_REP, r_att=R_ATT, k_rep=K_REP, k_att=K_ATT, k_target=K_TARGET):
-    all_agents, all_obstacles, groups, dt = map.all_agents, map.all_obstacles, map.all_groups, map.dt
-    t_idx = t if t >= 0 else len(all_agents[0].p[0])-1
+    all_obstacles, groups, dt = map.all_obstacles, map.all_groups, map.dt
+    t_idx = t if t >= 0 else len(map.all_agents[0].p[0])-1
     time = t_idx * map.dt
-    diffs, dists, center_of_mass = compute_diffs_dists_com(all_agents, groups, t_idx)
-    if not hasattr(map, 'init_c_o_m'):
-        map.init_c_o_m  = center_of_mass
-    target = target_point(map.init_c_o_m, time)
+    diffs, dists, center_of_mass = compute_diffs_dists_com(map.all_agents, groups, t_idx)
+    map.C_O_M = np.append(map.C_O_M,np.array([center_of_mass]),axis=0) if map.C_O_M.size else np.array([center_of_mass])
+    target = target_point(map.C_O_M[0], time)
     for i, a in enumerate(map.all_agents):
         g_idx = np.where(groups == a.group)
         c_o_m = center_of_mass[g_idx]
@@ -105,5 +104,5 @@ def compute_v_obst(agent, obstacles, t, r_rep, k_rep):
         diff = [closest_x - x, closest_y - y]
         dist = np.linalg.norm(diff)
         if 0 < dist < r_rep:
-            v_rep += 2 * k_rep * (dist - r_rep) * (diff/dist) # 2x stronger than v_rep ag-ag because obs don't move
+            v_rep += 1.5 * k_rep * (dist - r_rep) * (diff/dist) # 2x stronger than v_rep ag-ag because obs don't move
     return v_rep

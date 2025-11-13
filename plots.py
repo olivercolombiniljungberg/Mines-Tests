@@ -2,7 +2,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-from matplotlib.animation import FuncAnimation
+from matplotlib.animation import FuncAnimation, PillowWriter
 
 MAX_FRAMES = 200
 
@@ -123,11 +123,15 @@ def animate_map(map, frame_min=0, frame_max=-1, rectangle=None, interval=None, d
     anim = FuncAnimation(fig, update, frames=n_frames, interval=1000*interval*scaling, blit=False)
     return(anim)
 
-def save_anim(anim):
-    base_name,ext = "my_animation",".gif"
-    i = 1
-    while os.path.exists(f"{base_name}{i}{ext}"):
+def save_anim(anim, folder="my_animations"):
+    os.makedirs(folder, exist_ok=True)
+
+    base_name, ext = "my_animation", ".gif"
+    i = 0
+    filename = os.path.join(folder, f"{base_name}{i}{ext}")
+    while os.path.exists(filename):
         i += 1
-    filename = f"{base_name}{i}{ext}"
-    anim.save(filename, writer='pillow', fps=30)
+        filename = os.path.join(folder, f"{base_name}{i}{ext}")
+    writer = PillowWriter(fps=30)
+    anim.save(filename, writer=writer)
     print("Animation saved as",filename)
